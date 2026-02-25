@@ -15,7 +15,7 @@ export default defineConfig({
     proxy: {
       // Forward API calls to backend during development to avoid CORS
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'https://backend-k9t6.onrender.com',
         changeOrigin: true,
         secure: false,
       },

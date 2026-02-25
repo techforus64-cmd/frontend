@@ -1039,7 +1039,7 @@ const EditVendorModal: React.FC<EditVendorModalProps> = ({ vendor, onClose, onSa
     setPincodeError('');
 
     try {
-      //const API_URL = import.meta.env.VITE_API_URL || 'localhost:8000';
+      //const API_URL = import.meta.env.VITE_API_URL || 'backend-k9t6.onrender.com';
       const response = await fetch(`${API_BASE}/api/pincode/${pincode}`);
 
       if (!response.ok) {
@@ -1227,7 +1227,7 @@ const EditVendorModal: React.FC<EditVendorModalProps> = ({ vendor, onClose, onSa
         allFields: Object.keys(payload),
       });
 
-      //onst API_URL = import.meta.env.VITE_API_URL || 'localhost:8000';
+      //onst API_URL = import.meta.env.VITE_API_URL || 'backend-k9t6.onrender.com';
       const token = getAuthTokenFromStorage();
 
       if (!token) {
