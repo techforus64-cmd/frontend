@@ -33,7 +33,7 @@ interface HealthData {
     health: HealthEntry[];
 }
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://backend-k9t6.onrender.com/api';
 
 const UTSFHealthMonitor: React.FC = () => {
     const [healthData, setHealthData] = useState<HealthData | null>(null);
