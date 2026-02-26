@@ -20,9 +20,9 @@
  */
 
 // Production backend URL - used as fallback when env var not set
-const PRODUCTION_BACKEND = 'https://freight-compare-backend-production.up.railway.app';
+const PRODUCTION_BACKEND = 'http://localhost:8000';
 
-const DEV_BACKEND = 'https://backend-k9t6.onrender.com';
+const DEV_BACKEND = 'http://localhost:8000';
 
 /**
  * Safely read environment variable (handles SSR edge cases)

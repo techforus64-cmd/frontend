@@ -33,7 +33,7 @@ interface HealthData {
     health: HealthEntry[];
 }
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const UTSFHealthMonitor: React.FC = () => {
     const [healthData, setHealthData] = useState<HealthData | null>(null);
@@ -121,8 +121,8 @@ const UTSFHealthMonitor: React.FC = () => {
             {/* Toast */}
             {toast && (
                 <div className={`fixed top-6 right-6 z-50 px-5 py-3 rounded-xl shadow-2xl border backdrop-blur-lg text-sm font-medium flex items-center gap-2 animate-slide-in ${toast.type === 'success'
-                        ? 'bg-emerald-900/80 border-emerald-500/40 text-emerald-200'
-                        : 'bg-red-900/80 border-red-500/40 text-red-200'
+                    ? 'bg-emerald-900/80 border-emerald-500/40 text-emerald-200'
+                    : 'bg-red-900/80 border-red-500/40 text-red-200'
                     }`}>
                     {toast.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
                     {toast.message}

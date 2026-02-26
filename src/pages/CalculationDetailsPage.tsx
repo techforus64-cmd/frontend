@@ -433,7 +433,54 @@ const CalculationDetailsPage: React.FC = () => {
                     </div>
                 </div>
 
-                {!hasFormulaData ? (
+                {quote.companyName === 'IndiaPost' ? (
+                    <div className="space-y-6">
+                        {/* 1. Weight & Distance */}
+                        <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                                    <Truck size={20} className="text-slate-400" />
+                                    IndiaPost Service Details
+                                </h3>
+                                <div className="text-xs font-mono text-slate-500 bg-white px-2 py-1 rounded border border-slate-200">
+                                    Postal Pricing
+                                </div>
+                            </div>
+                            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Chargeable Weight</div>
+                                    <div className="text-2xl font-bold text-blue-600">{quote.chargeableWeight} <span className="text-sm text-blue-400">kg</span></div>
+                                    <div className="text-xs text-slate-500 mt-1">Matched Slab: {quote.matchedWeight || quote.chargeableWeight} kg</div>
+                                </div>
+                                <div>
+                                    <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Calculated Distance</div>
+                                    <div className="text-2xl font-light text-slate-700">{quote.distance}</div>
+                                    <div className="text-xs text-slate-500 mt-1">Matched Pricing Bracket: {quote.matchedDistance || parseInt(quote.distance)} km</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* 2. Total Freight */}
+                        <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
+                                <h3 className="font-bold text-slate-800">Total Freight Calculation</h3>
+                            </div>
+                            <div className="p-6">
+                                <div className="flex items-center justify-between mb-4">
+                                    <span className="text-slate-600 font-medium">Postal Freight (Weight & Distance Matrix)</span>
+                                    <span className="font-mono text-slate-900">{formatMoney(quote.price)}</span>
+                                </div>
+                                <div className="border-t-2 border-slate-100 mt-6 pt-6 flex items-center justify-between">
+                                    <div>
+                                        <div className="text-xl font-extrabold text-slate-900">Total Amount</div>
+                                        <div className="text-xs text-slate-400 mt-1">Flat Rate (Inclusive of all postal surcharges)</div>
+                                    </div>
+                                    <div className="text-3xl font-extrabold text-blue-600">{formatMoney(quote.totalCharges)}</div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                ) : !hasFormulaData ? (
                     <div className="bg-white p-12 rounded-2xl shadow-sm text-center border border-dashed border-slate-300">
                         <Info className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                         <h3 className="text-xl font-semibold text-slate-700">Detailed Breakdown Not Available</h3>

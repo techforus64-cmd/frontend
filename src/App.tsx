@@ -51,6 +51,7 @@ import UTSFManager from './pages/UTSFManager';
 import UTSFHealthMonitor from './pages/UTSFHealthMonitor';
 import TransporterSignupPage from './pages/TransporterSignupPage';
 import AdminUpdatesPage from './pages/AdminUpdatesPage';
+import IndiaPostAdminPage from './pages/IndiaPostAdminPage';
 // Unused imports removed
 
 export const PrivateRoute: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -110,7 +111,7 @@ export const SuperAdminRoute: React.FC<React.PropsWithChildren> = ({ children })
 // Pass requiredPermission to check for specific permission (e.g., "formBuilder", "dashboard")
 interface AdminRouteProps {
   children: React.ReactNode;
-  requiredPermission?: 'formBuilder' | 'dashboard' | 'vendorApproval' | 'userManagement';
+  requiredPermission?: 'formBuilder' | 'dashboard' | 'vendorApproval' | 'userManagement' | 'indiaPostPricing';
 }
 
 export const AdminRoute: React.FC<AdminRouteProps> = ({ children, requiredPermission }) => {
@@ -397,6 +398,16 @@ function App() {
               element={
                 <AdminRoute requiredPermission="formBuilder">
                   <FormBuilderPage />
+                </AdminRoute>
+              }
+            />
+
+            {/* IndiaPost Pricing */}
+            <Route
+              path="/super-admin/indiapost-pricing"
+              element={
+                <AdminRoute requiredPermission="indiaPostPricing">
+                  <IndiaPostAdminPage />
                 </AdminRoute>
               }
             />
