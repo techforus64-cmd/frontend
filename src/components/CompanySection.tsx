@@ -296,6 +296,7 @@ export const CompanySection: React.FC<CompanySectionProps> = ({
             value={geo.state || ''}
             onChange={(e) => setState(e.target.value)}
             readOnly={!isManual && !geoError}
+            tabIndex={(!isManual && !geoError) ? -1 : undefined}
             className={`mt-1 block w-full border rounded-lg shadow-sm px-3 py-2 text-sm text-slate-800 placeholder-slate-400
                        focus:outline-none focus:ring-1 focus:border-blue-500 transition
                        ${!isManual && !geoError
@@ -326,6 +327,7 @@ export const CompanySection: React.FC<CompanySectionProps> = ({
             value={geo.city || ''}
             onChange={(e) => setCity(e.target.value)}
             readOnly={!isManual && !geoError}
+            tabIndex={(!isManual && !geoError) ? -1 : undefined}
             className={`mt-1 block w-full border rounded-lg shadow-sm px-3 py-2 text-sm text-slate-800 placeholder-slate-400
                        focus:outline-none focus:ring-1 focus:border-blue-500 transition
                        ${!isManual && !geoError
@@ -451,6 +453,7 @@ export const CompanySection: React.FC<CompanySectionProps> = ({
               {/* Full Truck Load */}
               <button
                 type="button"
+                tabIndex={-1}
                 onClick={() => {
                   setField('serviceMode', 'FTL');
                   if (errors.serviceMode) validateField('serviceMode');
@@ -475,6 +478,7 @@ export const CompanySection: React.FC<CompanySectionProps> = ({
               {/* Part Truck Load */}
               <button
                 type="button"
+                tabIndex={-1}
                 onClick={() => {
                   setField('serviceMode', 'LTL');
                   if (errors.serviceMode) validateField('serviceMode');

@@ -309,7 +309,7 @@ const CustomSurchargesPanel: React.FC<CustomSurchargesPanelProps> = ({
 
       {/* ── Body ── */}
       {expanded && (
-        <div className="border-t border-slate-200 px-5 pt-3 pb-5">
+        <div className="border-t border-slate-200 px-5 pt-3 pb-5 overflow-x-auto">
 
           {surcharges.length === 0 ? (
             <p className="text-xs text-slate-400 italic mb-3 px-1">
@@ -698,8 +698,8 @@ export const ChargesSection: React.FC<ChargesSectionProps> = ({ charges }) => {
             Handling & Other Charges
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-min">
-            {/* ROW 1: Appointment, ROV */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 auto-rows-min">
+            {/* Row 1: Appointment | ROV/FOV */}
             <CompactChargeCard
               title="Appointment"
               tooltip="Scheduled delivery appointment charges"
@@ -722,21 +722,7 @@ export const ChargesSection: React.FC<ChargesSectionProps> = ({ charges }) => {
               required={isRequired('rovCharges')}
             />
 
-            {/* SPANS RIGHT COLUMN */}
-            <div className="md:col-start-2 lg:col-start-3 md:row-span-2 h-full">
-              <CompactChargeCard
-                title="Handling"
-                tooltip="Material handling and processing charges"
-                cardName="handlingCharges"
-                data={{ ...createDefaultChargeCard(), ...(chargeValues.handlingCharges || {}) } as ChargeCardData}
-                errors={errors.handlingCharges || {}}
-                onFieldChange={(field, value) => setCardField('handlingCharges', field, value)}
-                onFieldBlur={(field) => validateCardField('handlingCharges', field)}
-                required={isRequired('handlingCharges')}
-              />
-            </div>
-
-            {/* ROW 2: COD, To-Pay */}
+            {/* Row 2: COD/DOD | To-Pay */}
             <CompactChargeCard
               title="COD / DOD"
               tooltip="Cash on Delivery / Delivery on Demand service charges"
@@ -769,6 +755,18 @@ export const ChargesSection: React.FC<ChargesSectionProps> = ({ charges }) => {
               onFieldBlur={(field) => validateCardField('toPayCharges', field)}
               required={isRequired('toPayCharges')}
               allowVariable={true}
+            />
+
+            {/* Row 3: Handling */}
+            <CompactChargeCard
+              title="Handling"
+              tooltip="Material handling and processing charges"
+              cardName="handlingCharges"
+              data={{ ...createDefaultChargeCard(), ...(chargeValues.handlingCharges || {}) } as ChargeCardData}
+              errors={errors.handlingCharges || {}}
+              onFieldChange={(field, value) => setCardField('handlingCharges', field, value)}
+              onFieldBlur={(field) => validateCardField('handlingCharges', field)}
+              required={isRequired('handlingCharges')}
             />
 
           </div>

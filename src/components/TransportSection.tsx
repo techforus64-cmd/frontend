@@ -126,6 +126,7 @@ export const TransportSection: React.FC<Props> = ({
             <div className="inline-flex rounded-md shadow-sm border border-slate-300 w-full">
               <button
                 type="button"
+                tabIndex={-1}
                 onClick={() => setUnit('cm')}
                 className={
                   'flex-1 px-4 py-2 text-sm font-medium rounded-l-md ' +
@@ -138,6 +139,7 @@ export const TransportSection: React.FC<Props> = ({
               </button>
               <button
                 type="button"
+                tabIndex={-1}
                 onClick={() => setUnit('in')}
                 className={
                   'flex-1 px-4 py-2 text-sm font-medium rounded-r-md border-l border-slate-300 ' +

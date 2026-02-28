@@ -876,11 +876,12 @@ export const CompactChargeCard: React.FC<CompactChargeCardProps> = ({
           <div className="inline-flex bg-slate-100 p-0.5 rounded-lg border border-slate-200">
             <button
               type="button"
+              tabIndex={-1}
               onClick={() => {
                 onFieldChange('currency', 'INR' as Currency);
                 onFieldChange('mode', 'FIXED' as Mode);
               }}
-              className={`px-2 py-0.5 text-xs font-semibold rounded-md transition-all ${isFixed
+              className={`px-2 py-0.5 text-xs font-semibold rounded-md transition-all focus:outline-none ${isFixed
                 ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200'
                 : 'bg-transparent text-slate-500 hover:text-slate-700'
                 }`}
@@ -890,11 +891,12 @@ export const CompactChargeCard: React.FC<CompactChargeCardProps> = ({
             {allowVariable && (
               <button
                 type="button"
+                tabIndex={-1}
                 onClick={() => {
                   onFieldChange('currency', 'PERCENT' as Currency);
                   onFieldChange('mode', 'VARIABLE' as Mode);
                 }}
-                className={`px-2 py-0.5 text-xs font-semibold rounded-md transition-all ${isVariable
+                className={`px-2 py-0.5 text-xs font-semibold rounded-md transition-all focus:outline-none ${isVariable
                   ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200'
                   : 'bg-transparent text-slate-500 hover:text-slate-700'
                   }`}
@@ -912,6 +914,7 @@ export const CompactChargeCard: React.FC<CompactChargeCardProps> = ({
         <div className="flex justify-end mb-3">
           <select
             value={data.unit}
+            tabIndex={-1}
             onChange={(e) => onFieldChange('unit', e.target.value as Unit)}
             className="text-xs border border-slate-200 rounded-md px-2 py-0.5 bg-slate-50 text-slate-700 h-[26px] focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
           >

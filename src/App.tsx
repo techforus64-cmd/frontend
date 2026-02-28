@@ -54,21 +54,26 @@ import AdminUpdatesPage from './pages/AdminUpdatesPage';
 import IndiaPostAdminPage from './pages/IndiaPostAdminPage';
 // Unused imports removed
 
+const RouteLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="text-center">
+      <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+      <p className="text-sm text-slate-400">Loading…</p>
+    </div>
+  </div>
+);
+
 export const PrivateRoute: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) {
-    return <div className="text-center mt-20 text-gray-600">Loading...</div>;
-  }
+  if (loading) return <RouteLoader />;
   return isAuthenticated ? <>{children}</> : <Navigate to="/signin" replace />;
 };
 
 export const PublicRoute: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) {
-    return <div className="text-center mt-20 text-gray-600">Loading...</div>;
-  }
+  if (loading) return <RouteLoader />;
   return isAuthenticated ? <Navigate to="/compare" replace /> : <>{children}</>;
 };
 
@@ -77,9 +82,7 @@ export const PublicRoute: React.FC<React.PropsWithChildren> = ({ children }) => 
 export const SuperAdminRoute: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { isAuthenticated, loading, isSuperAdmin } = useAuth();
 
-  if (loading) {
-    return <div className="text-center mt-20 text-gray-600">Loading...</div>;
-  }
+  if (loading) return <RouteLoader />;
 
   if (!isAuthenticated) {
     return <SignInPage />;
@@ -117,9 +120,7 @@ interface AdminRouteProps {
 export const AdminRoute: React.FC<AdminRouteProps> = ({ children, requiredPermission }) => {
   const { isAuthenticated, loading, isSuperAdmin, isAdmin, adminPermissions, user } = useAuth();
 
-  if (loading) {
-    return <div className="text-center mt-20 text-gray-600">Loading...</div>;
-  }
+  if (loading) return <RouteLoader />;
 
   if (!isAuthenticated) {
     return <SignInPage />;

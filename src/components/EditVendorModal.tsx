@@ -251,6 +251,25 @@ function getAuthTokenFromStorage(): string {
   );
 }
 
+function getCustomerIDFromToken(): string {
+  const token = getAuthTokenFromStorage();
+  if (!token || token.split('.').length < 2) return '';
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return (
+      payload?.customer?._id ||
+      payload?.user?._id ||
+      payload?._id ||
+      payload?.id ||
+      payload?.customerId ||
+      payload?.customerID ||
+      ''
+    );
+  } catch {
+    return '';
+  }
+}
+
 const displayZeroAsBlank = (val: string | number | null | undefined): string => {
   if (val === 0 || val === '0' || val === null || val === undefined) return '';
   return String(val);
@@ -669,6 +688,7 @@ const CompactChargeCardEdit: React.FC<CompactChargeCardEditProps> = ({
         {showUnitSelector && (
           <select
             value={data.unit || 'per kg'}
+            tabIndex={-1}
             onChange={(e) => onChange('unit', e.target.value as 'per kg' | 'per shipment' | 'per piece' | 'per box')}
             className="text-xs border border-slate-300 rounded px-2 py-1 bg-white focus:ring-1 focus:ring-indigo-500"
           >
@@ -684,8 +704,9 @@ const CompactChargeCardEdit: React.FC<CompactChargeCardEditProps> = ({
       <div className="flex gap-1 mb-3">
         <button
           type="button"
+          tabIndex={-1}
           onClick={() => handleModeChange('FIXED')}
-          className={`flex-1 px-3 py-1.5 text-xs font-semibold rounded transition ${data.mode === 'FIXED'
+          className={`flex-1 px-3 py-1.5 text-xs font-semibold rounded transition focus:outline-none ${data.mode === 'FIXED'
             ? 'bg-indigo-600 text-white'
             : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
@@ -694,8 +715,9 @@ const CompactChargeCardEdit: React.FC<CompactChargeCardEditProps> = ({
         </button>
         <button
           type="button"
+          tabIndex={-1}
           onClick={() => handleModeChange('VARIABLE')}
-          className={`flex-1 px-3 py-1.5 text-xs font-semibold rounded transition ${data.mode === 'VARIABLE'
+          className={`flex-1 px-3 py-1.5 text-xs font-semibold rounded transition focus:outline-none ${data.mode === 'VARIABLE'
             ? 'bg-indigo-600 text-white'
             : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
@@ -715,6 +737,7 @@ const CompactChargeCardEdit: React.FC<CompactChargeCardEditProps> = ({
             {showUnitSelector && (
               <select
                 value={data.unit || 'per kg'}
+                tabIndex={-1}
                 onChange={(e) => onChange('unit', e.target.value as 'per kg' | 'per shipment' | 'per piece' | 'per box')}
                 className="text-xs bg-indigo-100 text-indigo-700 border border-indigo-300 rounded px-2 py-0.5 font-medium focus:ring-1 focus:ring-indigo-500 focus:bg-indigo-50"
               >
@@ -751,6 +774,7 @@ const CompactChargeCardEdit: React.FC<CompactChargeCardEditProps> = ({
             {showUnitSelector && (
               <select
                 value={data.unit || 'per kg'}
+                tabIndex={-1}
                 onChange={(e) => onChange('unit', e.target.value as 'per kg' | 'per shipment' | 'per piece' | 'per box')}
                 className="text-xs bg-indigo-100 text-indigo-700 border border-indigo-300 rounded px-2 py-0.5 font-medium focus:ring-1 focus:ring-indigo-500 focus:bg-indigo-50"
               >
@@ -865,6 +889,7 @@ const EditVendorModal: React.FC<EditVendorModalProps> = ({ vendor, onClose, onSa
       return;
     }
 
+    // Support both MongoDB structure (vendor.prices.priceRate) and UTSF (vendor.prices.priceRate after enrichment)
     const priceRate = vendor.prices?.priceRate || {};
 
     const determineMode = (fixed: number, variable: number): 'FIXED' | 'VARIABLE' => {
@@ -1139,112 +1164,130 @@ const EditVendorModal: React.FC<EditVendorModalProps> = ({ vendor, onClose, onSa
       return;
     }
 
-    //PUT REQUEST TO UPDATE VENDOR 
+    // Shared priceRate payload (used by both MongoDB and UTSF)
+    const priceRatePayload = {
+      minWeight: formData.charges.minChargeableWeight,
+      docketCharges: formData.charges.docketCharges,
+      fuel: formData.charges.fuelSurchargePct,
+      minCharges: formData.charges.minimumCharges,
+      greenTax: formData.charges.greenTax,
+      daccCharges: formData.charges.daccCharges,
+      miscellanousCharges: formData.charges.miscCharges,
+      hamaliCharges: formData.charges.hamaliCharges,
+      divisor: formData.volumetric.unit === 'cm' ? formData.volumetric.volumetricDivisor : 0,
+      cftFactor: formData.volumetric.unit === 'in' ? formData.volumetric.cftFactor : 0,
+      volumetricUnit: formData.volumetric.unit,
+      handlingCharges: {
+        fixed: formData.charges.handlingCharges.fixedAmount,
+        variable: Number(formData.charges.handlingCharges.variableRange),
+        threshholdweight: formData.charges.handlingCharges.weightThreshold || 0,
+        unit: formData.charges.handlingCharges.unit || 'per kg',
+      },
+      rovCharges: {
+        fixed: formData.charges.rovCharges.fixedAmount,
+        variable: Number(formData.charges.rovCharges.variableRange),
+        unit: formData.charges.rovCharges.unit || 'per kg',
+      },
+      codCharges: {
+        fixed: formData.charges.codCharges.fixedAmount,
+        variable: Number(formData.charges.codCharges.variableRange),
+        unit: formData.charges.codCharges.unit || 'per kg',
+      },
+      topayCharges: {
+        fixed: formData.charges.toPayCharges.fixedAmount,
+        variable: Number(formData.charges.toPayCharges.variableRange),
+        unit: formData.charges.toPayCharges.unit || 'per kg',
+      },
+      appointmentCharges: {
+        fixed: formData.charges.appointmentCharges.fixedAmount,
+        variable: Number(formData.charges.appointmentCharges.variableRange),
+        unit: formData.charges.appointmentCharges.unit || 'per kg',
+      },
+    };
+
     setIsSubmitting(true);
     try {
       const vendorId = vendor?._id ?? vendor?.id;
       if (!vendorId) throw new Error('Missing vendor id');
 
-      // ✅ Build complete payload with ALL required fields
-      const payload = {
-        // Basic company information
-        companyName: formData.basics.companyName.trim(),
-        contactPersonName: formData.basics.contactPersonName.trim(),
-        vendorCode: formData.basics.vendorCode,
-        vendorPhone: Number(formData.basics.vendorPhoneNumber.replace(/\D+/g, '')),
-        vendorEmail: formData.basics.vendorEmailAddress.trim(),
-        gstNo: formData.basics.gstin.toUpperCase(),
-        subVendor: formData.basics.subVendor.trim(),
-
-        // Address & location
-        address: formData.basics.address.trim(),
-        pincode: Number(formData.geo.pincode.replace(/\D+/g, '')),
-        city: formData.geo.city,
-        state: formData.geo.state,
-
-        // Service details
-        serviceMode: formData.basics.serviceMode,
-        rating: formData.basics.companyRating,
-        transportMode: formData.transportMode,
-
-        // Volumetric configuration (root level - required for DB)
-        volumetricUnit: formData.volumetric.unit,
-        cftFactor: formData.volumetric.unit === 'in' ? formData.volumetric.cftFactor : null,
-
-        // Pricing details
-        prices: {
-          priceRate: {
-            minWeight: formData.charges.minChargeableWeight,
-            docketCharges: formData.charges.docketCharges,
-            fuel: formData.charges.fuelSurchargePct,
-            minCharges: formData.charges.minimumCharges,
-            greenTax: formData.charges.greenTax,
-            daccCharges: formData.charges.daccCharges,
-            miscellanousCharges: formData.charges.miscCharges,
-            hamaliCharges: formData.charges.hamaliCharges,
-            divisor: formData.volumetric.unit === 'cm' ? formData.volumetric.volumetricDivisor : 0,
-            cftFactor: formData.volumetric.unit === 'in' ? formData.volumetric.cftFactor : 0,
-            handlingCharges: {
-              fixed: formData.charges.handlingCharges.fixedAmount,
-              variable: Number(formData.charges.handlingCharges.variableRange),
-              threshholdweight: formData.charges.handlingCharges.weightThreshold || 0,
-              unit: formData.charges.handlingCharges.unit || 'per kg',
-            },
-            rovCharges: {
-              fixed: formData.charges.rovCharges.fixedAmount,
-              variable: Number(formData.charges.rovCharges.variableRange),
-              unit: formData.charges.rovCharges.unit || 'per kg',
-            },
-            codCharges: {
-              fixed: formData.charges.codCharges.fixedAmount,
-              variable: Number(formData.charges.codCharges.variableRange),
-              unit: formData.charges.codCharges.unit || 'per kg',
-            },
-            topayCharges: {
-              fixed: formData.charges.toPayCharges.fixedAmount,
-              variable: Number(formData.charges.toPayCharges.variableRange),
-              unit: formData.charges.toPayCharges.unit || 'per kg',
-            },
-            appointmentCharges: {
-              fixed: formData.charges.appointmentCharges.fixedAmount,
-              variable: Number(formData.charges.appointmentCharges.variableRange),
-              unit: formData.charges.appointmentCharges.unit || 'per kg',
-            },
-          },
-          priceChart: vendor.prices?.priceChart || {},
-        },
-      };
-
-      // 🔍 DEBUG: Log payload before sending
-      console.log('📤 EditVendor Payload:', {
-        companyName: payload.companyName,
-        contactPersonName: payload.contactPersonName,
-        volumetricUnit: payload.volumetricUnit,
-        cftFactor: payload.cftFactor,
-        serviceMode: payload.serviceMode,
-        rating: payload.rating,
-        transportMode: payload.transportMode,
-        allFields: Object.keys(payload),
-      });
-
-      //onst API_URL = import.meta.env.VITE_API_URL || 'backend-k9t6.onrender.com';
       const token = getAuthTokenFromStorage();
-
       if (!token) {
         toast.error('Not authenticated — please login and try again.');
         setIsSubmitting(false);
         return;
       }
 
-      const response = await fetch(`${API_BASE}/api/transporter/update-vendor/${vendorId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
+      const isUtsfVendor = vendor?.source === 'UTSF';
+      let response: Response;
+
+      if (isUtsfVendor) {
+        // UTSF vendor: send to UTSF endpoint with { customerId, updates: { meta, pricing } }
+        const customerId = getCustomerIDFromToken() ||
+          Cookies.get('customerId') || Cookies.get('customerID') ||
+          localStorage.getItem('customerId') || localStorage.getItem('customerID') || '';
+        const utsfPayload = {
+          customerId,
+          updates: {
+            meta: {
+              companyName: formData.basics.companyName.trim(),
+              contactPersonName: formData.basics.contactPersonName.trim(),
+              vendorCode: formData.basics.vendorCode,
+              vendorPhone: formData.basics.vendorPhoneNumber.replace(/\D+/g, ''),
+              vendorEmail: formData.basics.vendorEmailAddress.trim(),
+              gstNo: formData.basics.gstin.toUpperCase(),
+              subVendor: formData.basics.subVendor.trim(),
+              address: formData.basics.address.trim(),
+              pincode: formData.geo.pincode.replace(/\D+/g, ''),
+              city: formData.geo.city,
+              state: formData.geo.state,
+              rating: formData.basics.companyRating,
+              serviceMode: formData.basics.serviceMode,
+              transportMode: formData.transportMode,
+            },
+            pricing: {
+              priceRate: priceRatePayload,
+            },
+          },
+        };
+        console.log('📤 [UTSF] EditVendor Payload:', utsfPayload);
+        response = await fetch(`${API_BASE}/api/utsf/my-vendors/${vendorId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          credentials: 'include',
+          body: JSON.stringify(utsfPayload),
+        });
+      } else {
+        // MongoDB vendor: legacy endpoint
+        const payload = {
+          companyName: formData.basics.companyName.trim(),
+          contactPersonName: formData.basics.contactPersonName.trim(),
+          vendorCode: formData.basics.vendorCode,
+          vendorPhone: Number(formData.basics.vendorPhoneNumber.replace(/\D+/g, '')),
+          vendorEmail: formData.basics.vendorEmailAddress.trim(),
+          gstNo: formData.basics.gstin.toUpperCase(),
+          subVendor: formData.basics.subVendor.trim(),
+          address: formData.basics.address.trim(),
+          pincode: Number(formData.geo.pincode.replace(/\D+/g, '')),
+          city: formData.geo.city,
+          state: formData.geo.state,
+          serviceMode: formData.basics.serviceMode,
+          rating: formData.basics.companyRating,
+          transportMode: formData.transportMode,
+          volumetricUnit: formData.volumetric.unit,
+          cftFactor: formData.volumetric.unit === 'in' ? formData.volumetric.cftFactor : null,
+          prices: {
+            priceRate: priceRatePayload,
+            priceChart: vendor.prices?.priceChart || {},
+          },
+        };
+        console.log('📤 [MongoDB] EditVendor Payload:', { companyName: payload.companyName, allFields: Object.keys(payload) });
+        response = await fetch(`${API_BASE}/api/transporter/update-vendor/${vendorId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+      }
 
       const result = await response.json().catch(() => ({} as any));
 
@@ -1259,7 +1302,7 @@ const EditVendorModal: React.FC<EditVendorModalProps> = ({ vendor, onClose, onSa
       }
 
       toast.success('Vendor updated successfully!');
-      onSave(result.data ?? { ...formData, _id: vendorId });
+      onSave(result.data ?? result.transporter ?? { ...formData, _id: vendorId });
       onClose();
     } catch (err: any) {
       console.error('❌ Error updating vendor:', err);
@@ -1292,22 +1335,33 @@ const EditVendorModal: React.FC<EditVendorModalProps> = ({ vendor, onClose, onSa
   const volumetricLabel = isCM ? 'Volumetric Divisor' : 'CFT Factor';
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
       <div
-        className="bg-white rounded-lg shadow-xl w-full max-w-6xl my-8 flex flex-col"
-        style={{ maxHeight: 'calc(100vh - 4rem)' }}
+        className="bg-white rounded-lg shadow-xl w-full max-w-6xl my-4 sm:my-8 flex flex-col"
+        style={{ maxHeight: 'calc(100vh - 2rem)' }}
       >
-        {/* Header - UNCHANGED */}
+        {/* Header */}
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center z-10 rounded-t-lg">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Edit Vendor</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-gray-900">Edit Vendor</h2>
+              {vendor.source && (
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                  vendor.source === 'UTSF'
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : 'bg-blue-100 text-blue-800'
+                }`}>
+                  {vendor.source}
+                </span>
+              )}
+            </div>
             <p className="text-sm text-gray-500 mt-1">
               Update vendor information for {vendor.companyName ?? 'this vendor'}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -2156,13 +2210,13 @@ const EditVendorModal: React.FC<EditVendorModalProps> = ({ vendor, onClose, onSa
             </div>
           </div>
 
-          {/* Footer - UNCHANGED */}
-          <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex gap-3 rounded-b-lg mt-6">
+          {/* Footer */}
+          <div className="sticky bottom-0 bg-white border-t border-slate-200 px-6 py-4 flex gap-3 rounded-b-lg mt-6 shadow-[0_-2px_8px_0_rgba(0,0,0,0.06)]">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg text-slate-700 font-medium hover:bg-slate-50 hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm"
             >
               Cancel
             </button>
@@ -2170,7 +2224,7 @@ const EditVendorModal: React.FC<EditVendorModalProps> = ({ vendor, onClose, onSa
               type="button"
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm flex items-center justify-center gap-2 shadow-sm"
             >
               {isSubmitting ? (
                 <>
