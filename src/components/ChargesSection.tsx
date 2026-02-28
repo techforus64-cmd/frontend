@@ -26,6 +26,7 @@ import { ChargeCardData, createDefaultChargeCard } from '../utils/chargeValidato
 import { CompactChargeCard } from './CompactChargeCard';
 import { ComboInput } from './ComboInput';
 import { useFormConfig } from '../hooks/useFormConfig';
+import { FormKeyNav } from './FormKeyNav';
 
 // =============================================================================
 // PROPS
@@ -515,7 +516,7 @@ export const ChargesSection: React.FC<ChargesSectionProps> = ({ charges }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+    <FormKeyNav className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
 
       <div className="flex flex-col lg:flex-row gap-8">
 
@@ -781,7 +782,7 @@ export const ChargesSection: React.FC<ChargesSectionProps> = ({ charges }) => {
         onRemove={removeSurcharge}
         onUpdate={updateSurcharge}
       />
-    </div>
+    </FormKeyNav>
   );
 };
 

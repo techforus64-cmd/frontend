@@ -2,6 +2,7 @@
 import React from 'react';
 import { useVolumetric } from '../hooks/useVolumetric';
 import { useFormConfig } from '../hooks/useFormConfig';
+import { FormKeyNav } from './FormKeyNav';
 
 type Mode = 'road' | 'air' | 'rail' | 'ship';
 
@@ -60,7 +61,7 @@ export const TransportSection: React.FC<Props> = ({
   const selected = isCM ? state.volumetricDivisor : state.cftFactor;
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+    <FormKeyNav className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-slate-900 mb-4">
         Transport & Volumetric Configuration
       </h2>
@@ -162,6 +163,6 @@ export const TransportSection: React.FC<Props> = ({
           </div>
         </div>
       </div>
-    </section>
+    </FormKeyNav>
   );
 };

@@ -3,6 +3,7 @@ import { UseVendorBasicsReturn } from '../hooks/useVendorBasics';
 import { UsePincodeLookupReturn } from '../hooks/usePincodeLookup';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import { useFormConfig } from '../hooks/useFormConfig';
+import { FormKeyNav } from './FormKeyNav';
 
 // =============================================================================
 // PROPS
@@ -54,7 +55,7 @@ export const CompanySection: React.FC<CompanySectionProps> = ({
     getField(fieldId)?.visible ?? true;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
+    <FormKeyNav className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
       <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
         <InformationCircleIcon className="w-5 h-5 text-blue-500" />
         Company & Contact Information
@@ -506,6 +507,6 @@ export const CompanySection: React.FC<CompanySectionProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </FormKeyNav>
   );
 };

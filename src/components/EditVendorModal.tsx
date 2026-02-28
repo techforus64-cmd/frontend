@@ -8,6 +8,7 @@ import PincodeAutocomplete from '../components/PincodeAutocomplete'; // adjust p
 import { usePincodeLookup } from '../hooks/usePincodeLookup';
 import { useFormConfig } from '../hooks/useFormConfig';
 import { API_BASE_URL } from '../config/api';
+import { useFormKeyNav } from '../hooks/useFormKeyNav';
 
 
 
@@ -848,6 +849,9 @@ const EditVendorModal: React.FC<EditVendorModalProps> = ({ vendor, onClose, onSa
   const [isLoadingPincode, setIsLoadingPincode] = useState(false);
   const [pincodeError, setPincodeError] = useState('');
 
+  // Keyboard navigation: Enter → next field, Backspace-on-empty → previous
+  const { containerRef: formRef, handleKeyDown: handleFormKeyDown } = useFormKeyNav();
+
   // ═══════════════════════════════════════════════════════════════════════════
   // FORM BUILDER CONFIG - Dynamic labels, visibility, and options from MongoDB
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1371,7 +1375,7 @@ const EditVendorModal: React.FC<EditVendorModalProps> = ({ vendor, onClose, onSa
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6">
-          <div className="space-y-6">
+          <div ref={formRef} onKeyDown={handleFormKeyDown} className="space-y-6">
 
             {/* COMPANY & CONTACT INFORMATION - UNCHANGED */}
             <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
